@@ -26,8 +26,8 @@ class Main():
 
             return {
                 "code": session_.code,
-                "sid": session_.sid,
-                "expires": session_.expires
+                "sid": str(session_.sid),
+                "expires": int(round(session_.expires.timestamp())) * 1000
             }
 
         except Exception as error:

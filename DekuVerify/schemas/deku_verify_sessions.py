@@ -9,7 +9,7 @@ from peewee import Model, CharField, DateTimeField, IntegerField
 from DekuVerify.schemas.connector import db
 
 random_4_digit = random.randint(1000, 9999)
-default_code_lifetime = str(datetime.now()) + timedelta(minutes=10)
+default_code_lifetime = datetime.now() + timedelta(minutes=10)
 
 class DekuVerifySessions(Model):
     """Model definition"""
