@@ -21,14 +21,18 @@ class Verification:
 
         logger.debug("[*] initializing ...")
 
-        age = datetime.now() - timedelta(minutes=10)
+        sessions = self.deku_verify_sessions.select()
 
-        session_ = self.deku_verify_sessions.update(status="expired",).where(
-            (self.deku_verify_sessions.expires < age)
-            & (self.deku_verify_sessions.status == "pending")
-        )
+        for session in sessions.iterator():
+            age = session.expires.timestamp() - datetime.now().timestamp()
 
-        session_.execute()
+            if age <= 0:
+                session_ = self.deku_verify_sessions.update(status="expired",).where(
+                    self.deku_verify_sessions.sid == session.sid,
+                    self.deku_verify_sessions.status == "pending",
+                )
+
+                session_.execute()
 
         logger.info("[x] initialized")
 
