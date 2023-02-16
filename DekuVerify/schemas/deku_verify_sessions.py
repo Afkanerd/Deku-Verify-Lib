@@ -11,8 +11,10 @@ from DekuVerify.schemas.connector import db
 random_4_digit = random.randint(1000, 9999)
 default_code_lifetime = datetime.now() + timedelta(minutes=10)
 
+
 class DekuVerifySessions(Model):
     """Model definition"""
+
     sid = CharField(primary_key=True, default=uuid4)
     code = CharField(default=random_4_digit)
     expires = DateTimeField(null=True, default=default_code_lifetime)
@@ -20,12 +22,14 @@ class DekuVerifySessions(Model):
     identifier = CharField()
     verified_attempts = IntegerField(default=0)
     sent_attempts = IntegerField(default=0)
-    created_on = DateTimeField(null=True, default=datetime.now)
+    created_at = DateTimeField(null=True, default=datetime.now)
 
     class Meta:
         """Meta definition"""
+
         database = db
         table_name = "deku_verify_sessions"
 
-if not db.table_exists('deku_verify_sessions'):
+
+if not db.table_exists("deku_verify_sessions"):
     db.create_tables([DekuVerifySessions])
