@@ -1,11 +1,12 @@
 """Verification Handler"""
 
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from DekuVerify.schemas.deku_verify_sessions import DekuVerifySessions
 
 logger = logging.getLogger(__name__)
+
 
 class Verification:
     """Handler definition"""
@@ -15,38 +16,62 @@ class Verification:
 
     def __clean__(self) -> None:
         """Update expired session's status"""
-        sessions = self.deku_verify_sessions.select()
 
-        logger.debug("[*] initialized ...")
+        logger.debug("[*] initializing ...")
 
-        for session in sessions.iterator():
-            age = session.expires.timestamp() - datetime.now().timestamp()
+        age = datetime.now() - timedelta(minutes=10)
 
-            if age <= 0:
-                session_ = self.deku_verify_sessions.update(
-                    status="expired",
-                ).where(
-                    self.deku_verify_sessions.sid == session.sid,
-                )
+        session_ = self.deku_verify_sessions.update(status="expired",).where(
+            (self.deku_verify_sessions.expires < age)
+            & (self.deku_verify_sessions.status != "expired")
+        )
 
-                session_.execute()
+        session_.execute()
 
         logger.info("[x] initialized")
 
-    def create(self) -> object:
+    def create(self, identifier: str) -> object:
         """Create a verification instance
-        
+
         Keyword arguments:
+        identifier -- An identifier mapped to code
 
         return: object
         """
 
         self.__clean__()
 
-        logger.debug("[*] Creating verify session ...")
+        try:
+            logger.debug("[*] Finding session for '%s' ...", identifier)
 
-        verify_session = self.deku_verify_sessions.create()
+            session = self.deku_verify_sessions.get(
+                self.deku_verify_sessions.identifier == identifier,
+                self.deku_verify_sessions.status == "pending",
+            )
 
-        logger.info("[X] Successfully created Verfiy Session")
+        except self.deku_verify_sessions.DoesNotExist:
+            try:
+                logger.debug("[*] Creating verify session ...")
 
-        return verify_session
+                session = self.deku_verify_sessions.create(
+                    identifier=identifier, sent_attempts=1
+                )
+
+                logger.info("[X] Successfully created Verfiy Session")
+
+                return session
+
+            except Exception as error:
+                logger.error("[!] Error creating verify session. See logs below")
+                raise error
+
+        else:
+            logger.debug("[*] Updating session '%s' ...", str(session.sid))
+
+            default_code_lifetime = datetime.now() + timedelta(minutes=10)
+
+            session.sent_attempts += 1
+            session.expires = default_code_lifetime
+            session.save()
+
+            return session

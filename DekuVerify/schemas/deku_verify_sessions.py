@@ -17,6 +17,7 @@ class DekuVerifySessions(Model):
     code = CharField(default=random_4_digit)
     expires = DateTimeField(null=True, default=default_code_lifetime)
     status = CharField(null=True, default="pending")
+    identifier = CharField()
     verified_attempts = IntegerField(default=0)
     sent_attempts = IntegerField(default=0)
     created_on = DateTimeField(null=True, default=datetime.now)
