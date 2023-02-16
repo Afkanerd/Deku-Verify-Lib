@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 
 from DekuVerify.schemas.deku_verify_sessions import DekuVerifySessions
 
+from DekuVerify.exceptions import SessionNotFound, IncorrectCode, InvalidIdentifier
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,7 +25,7 @@ class Verification:
 
         session_ = self.deku_verify_sessions.update(status="expired",).where(
             (self.deku_verify_sessions.expires < age)
-            & (self.deku_verify_sessions.status != "expired")
+            & (self.deku_verify_sessions.status == "pending")
         )
 
         session_.execute()
@@ -72,6 +74,48 @@ class Verification:
 
             session.sent_attempts += 1
             session.expires = default_code_lifetime
+            session.save()
+
+            return session
+
+    def check(self, sid: str, identifier: str, code: str) -> object:
+        """Check verification status
+
+        Keyword arguments:
+        sid -- Verification session ID
+        identifier -- An identifier mapped to code
+        code -- verification code
+
+        return: object
+        """
+
+        self.__clean__()
+
+        try:
+            logger.debug("[*] Finding session for '%s' ...", identifier)
+
+            session = self.deku_verify_sessions.get(
+                self.deku_verify_sessions.sid == sid,
+                self.deku_verify_sessions.status == "pending",
+            )
+
+        except self.deku_verify_sessions.DoesNotExist:
+            raise SessionNotFound
+
+        else:
+            session.verified_attempts += 1
+
+            if session.identifier != identifier:
+                session.save()
+
+                raise InvalidIdentifier
+
+            if session.code != code:
+                session.save()
+
+                raise IncorrectCode
+
+            session.status = "approved"
             session.save()
 
             return session

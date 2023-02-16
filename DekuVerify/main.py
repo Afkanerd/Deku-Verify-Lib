@@ -25,10 +25,29 @@ class Main:
             session_ = session.create(identifier)
 
             return {
-                "code": session_.code,
+                "code": str(session_.code),
                 "sid": str(session_.sid),
                 "identifier": session_.identifier,
                 "expires": int(round(session_.expires.timestamp())) * 1000,
+            }
+
+        except Exception as error:
+            raise error
+
+    def check(self, sid: str, identifier: str, code: str):
+        """Check Method"""
+
+        from DekuVerify.models.verifications import Verification
+
+        try:
+            session = Verification()
+
+            session_ = session.check(sid, identifier, code)
+
+            return {
+                "sid": str(session_.sid),
+                "identifier": session_.identifier,
+                "status": session_.status,
             }
 
         except Exception as error:
