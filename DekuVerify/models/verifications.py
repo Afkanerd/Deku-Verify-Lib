@@ -119,3 +119,31 @@ class Verification:
             session.save()
 
             return session
+
+    def cancel(self, sid: str) -> bool:
+        """Check verification status
+
+        Keyword arguments:
+        sid -- Verification session ID
+
+        return: bool
+        """
+
+        self.__clean__()
+
+        try:
+            logger.debug("[*] Finding session '%s' ...", sid)
+
+            session = self.deku_verify_sessions.get(
+                self.deku_verify_sessions.sid == sid,
+                self.deku_verify_sessions.status == "pending",
+            )
+
+        except self.deku_verify_sessions.DoesNotExist:
+            raise SessionNotFound
+
+        else:
+            session.status = "cancelled"
+            session.save()
+
+            return True

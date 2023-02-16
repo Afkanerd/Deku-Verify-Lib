@@ -52,3 +52,18 @@ class Main:
 
         except Exception as error:
             raise error
+
+    def cancel(self, sid: str):
+        """Cancel Method"""
+
+        from DekuVerify.models.verifications import Verification
+
+        try:
+            session = Verification()
+
+            session_ = session.cancel(sid)
+
+            return session_
+
+        except Exception as error:
+            raise error

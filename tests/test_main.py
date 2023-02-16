@@ -100,3 +100,14 @@ def test_check_invalid_identifier(plugin):
         identifier = "invalid identifier"
 
         plugin.check(sid, identifier, code)
+
+
+def test_cancel(plugin):
+    """Test Cancel Method"""
+
+    check_result = plugin.create(IDENTIFIER)
+    sid = check_result["sid"]
+
+    result = plugin.cancel(sid)
+
+    assert result is True
