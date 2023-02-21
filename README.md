@@ -42,9 +42,112 @@ $ python3 setup.py install
 
 ---
 
+1. [Create Method](#create)
+2. [Check Method](#check)
+3. [Cancel Method](#cancel)
+
 ---
 
+### Create
+
+```python
+from DekuVerify import Verification, MySQL
+
+try:
+    db_config = MySQL(
+        database="",
+        user="",
+        host="",
+        password="",
+    )
+
+    verify = Verification(database_params=db_config)
+
+    result = verify.create(identifier)
+
+except Exception as error:
+    # Handle exception here ...
+
+```
+
+response
+
+```json
+{ "code": "", "sid": "", "identifier": "", "expires": "" }
+```
+
+### Check
+
+```python
+from DekuVerify import Verification, MySQL
+
+try:
+    db_config = MySQL(
+        database="",
+        user="",
+        host="",
+        password="",
+    )
+
+    verify = Verification(database_params=db_config)
+
+    result = verify.check(sid, code, identifier)
+
+except Exception as error:
+    # Handle exception here ...
+
+```
+
+response
+
+```json
+{ "status": "", "sid": "", "identifier": "" }
+```
+
+### Cancel
+
+```python
+from DekuVerify import Verification, MySQL
+
+try:
+    db_config = MySQL(
+        database="",
+        user="",
+        host="",
+        password="",
+    )
+
+    verify = Verification(database_params=db_config)
+
+    result = verify.cancel(sid)
+
+except Exception as error:
+    # Handle exception here ...
+
+```
+
+response
+
+```json
+bool
+```
+
 ## Exceptions
+
+- **SessionNotFound**: Exception raised when a verification session is not
+  found.
+
+  _return:_ String
+
+- **IncorrectCode**: Exception raised when a given verification code is
+  incorrect
+
+  _return:_ String
+
+- **InvalidIdentifier**: Exception raised when a given identifier is incorrect
+  the mapped session
+
+  _return:_ String
 
 ## Licensing
 
