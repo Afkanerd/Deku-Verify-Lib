@@ -82,11 +82,10 @@ class Verification:
 
             return session
 
-    def check(self, sid: str, identifier: str, code: str) -> object:
+    def check(self, identifier: str, code: str) -> object:
         """Check verification status
 
         Keyword arguments:
-        sid -- Verification session ID
         identifier -- An identifier mapped to code
         code -- verification code
 
@@ -99,20 +98,15 @@ class Verification:
             logger.debug("[*] Finding session for '%s' ...", identifier)
 
             session = self.deku_verify_sessions.get(
-                self.deku_verify_sessions.sid == sid,
+                self.deku_verify_sessions.identifier == identifier,
                 self.deku_verify_sessions.status == "pending",
             )
 
         except self.deku_verify_sessions.DoesNotExist:
-            raise SessionNotFound
+            raise InvalidIdentifier
 
         else:
             session.verified_attempts += 1
-
-            if session.identifier != identifier:
-                session.save()
-
-                raise InvalidIdentifier
 
             if session.code != code:
                 session.save()

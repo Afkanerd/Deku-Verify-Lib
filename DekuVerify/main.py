@@ -28,13 +28,14 @@ class Main:
                 "code": str(session_.code),
                 "sid": str(session_.sid),
                 "identifier": session_.identifier,
+                "status": session_.status,
                 "expires": int(round(session_.expires.timestamp())) * 1000,
             }
 
         except Exception as error:
             raise error
 
-    def check(self, sid: str, identifier: str, code: str):
+    def check(self, identifier: str, code: str):
         """Check Method"""
 
         from DekuVerify.models.verifications import Verification
@@ -42,12 +43,13 @@ class Main:
         try:
             session = Verification()
 
-            session_ = session.check(sid, identifier, code)
+            session_ = session.check(identifier, code)
 
             return {
                 "sid": str(session_.sid),
                 "identifier": session_.identifier,
                 "status": session_.status,
+                "expires": int(round(session_.expires.timestamp())) * 1000,
             }
 
         except Exception as error:

@@ -63,7 +63,7 @@ try:
 
     verify = Verification(database_params=db_config)
 
-    result = verify.create(identifier)
+    result = verify.create(identifier="")
 
 except Exception as error:
     # Handle exception here ...
@@ -73,7 +73,7 @@ except Exception as error:
 response
 
 ```json
-{ "code": "", "sid": "", "identifier": "", "expires": "" }
+{ "code": "", "sid": "", "identifier": "", "expires": "", "status": "" }
 ```
 
 ### Check
@@ -91,7 +91,7 @@ try:
 
     verify = Verification(database_params=db_config)
 
-    result = verify.check(sid, code, identifier)
+    result = verify.check(code="", identifier="")
 
 except Exception as error:
     # Handle exception here ...
@@ -101,7 +101,7 @@ except Exception as error:
 response
 
 ```json
-{ "status": "", "sid": "", "identifier": "" }
+{ "status": "", "sid": "", "identifier": "", "expires": "" }
 ```
 
 ### Cancel
